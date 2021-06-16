@@ -1,0 +1,16 @@
+ '''# loops frequency set to True or False. Values who were smaller than 0.5*max are NaN, by ~ set to False
+            # the rest (who is not NaN) is set to True, giving us a matrix with 0's (False) and 1's (True)
+            loops_frequency_T = []
+
+            for l in loops_frequency:
+                l_T = ~np.isnan(l)
+                loops_frequency_T.append(l_T)
+
+            # mean over all loops
+            freq_matrix, tnew_freq = mean_traces_data(loops_frequency_T, loops_eod_time, np.mean(start), np.mean(stop), np.mean(timespan))
+
+            # same done for valid_eod with True (1) and False (0) in it
+            eod_matrix, tnew_eod = mean_traces_data(loops_valid_eod, loops_eod_time, np.mean(start), np.mean(stop), np.mean(timespan))
+
+            mean_matrix = eod_matrix / freq_matrix
+'''
