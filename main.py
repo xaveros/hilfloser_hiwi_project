@@ -98,9 +98,9 @@ def main():
     for idx, dataset in enumerate(datasets):
          '''loaded:
          03-11-ab, 03-15-aa, 03-15-ab, 03-15-ac, 03-15-ae, 06-02-aa, 06-02-ab, 06-02-ac 
-         next: zu allen geladenen JAR nochmal (erste beiden sind durch), 03-16-ag vollständig'''
+         next: zu allen geladenen JAR nochmal (erste drei sind durch), 03-16-ag vollständig'''
 
-         if idx == 1:   # new_recordings: idx 15-17
+         if idx == 2:   # new_recordings: idx 15-17
             id = load_id(dataset)
             day_time = load_comment(dataset)
             print(dataset)
@@ -114,8 +114,8 @@ def main():
             jar_keys = [(-5.0, 0.0, False), (5.0, 0.0, False)]
             jar_analysis(dataset, dataset_dict, jar_keys)
 
-            # echo_keys = [(-50.0, 0.0, True), (50.0, 0.0, True)]
-            # chirp_analysis(dataset, dataset_dict, echo_keys, id)
+            echo_keys = [(-50.0, 0.0, True), (50.0, 0.0, True)]
+            chirp_analysis(dataset, dataset_dict, echo_keys, id)
 
 if __name__ == '__main__':
     main()

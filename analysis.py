@@ -274,8 +274,6 @@ def chirp_analysis(dataset, dataset_dict, keys, id):
         timespan = []
 
         for mt_id, position in dataset_dict[k]:         # schau ma hier: weird mt_ids und positions
-            print('mt_id:', mt_id, position)
-
             # retrieve eod trace
             mt = b.multi_tags[mt_id]
             # eod = mt.references("EOD-1")

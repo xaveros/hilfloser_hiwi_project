@@ -93,6 +93,7 @@ for dataset in datasets:
 
                     plt.axhline(threshold, 0, 40, lw=2, color='black')
                     plt.axhline(threshold2, 0, 40, lw=2, color='black')
+                    plt.xlabel('time [s]')
                     plt.show()
                 # embed()
             print('-------------------------------------')

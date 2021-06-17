@@ -21,7 +21,7 @@ echo_keys = [(-50.0, 0.0, True), (50.0, 0.0, True)]
 
 for dataset in datasets:
     dataset = dataset[-17:-4]
-    if dataset == '2021-03-11-ab':  # temporaly because data is loaded there
+    if dataset == '2021-03-15-aa':  # temporaly because data is loaded there
 
         os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
@@ -73,18 +73,38 @@ for dataset in datasets:
                 threshold_value = 30
                 threshold = threshold_value
                 threshold2 = -threshold_value
-                chirp_times = threshold_crossing(valid_freq, valid_time, threshold)
+
+                chirp_times1 = threshold_crossing(valid_freq, valid_time, threshold)
                 chirp_times2 = threshold_crossing(valid_freq, valid_time, threshold2)
 
-                chirp_number = len(chirp_times) + len(chirp_times2)
+                chirp_times1 = chirp_times1.tolist()
+                chirp_times2 = chirp_times2.tolist()
+                chirp_times = chirp_times1 + chirp_times2
+
+                chirp_times = sorted(chirp_times)
+                chirp_number = len(chirp_times)
+
+                chirp_height = []
+                for chirp in chirp_times:
+                    start_segment = chirp - 0.1
+                    stop_segment = chirp + 0.1
+                    window_chirp = valid_freq[(valid_time >= start_segment) & (valid_time < stop_segment)]
+                    if len(window_chirp) == 0:
+                        embed()
+                    height = np.max(window_chirp)
+                    chirp_height.append(height)
+
 
                 'align art_chirps to chirps'
+                echo_time = []
+                for c in chirp_times:
+                    c_floor = np.floor(c)
+                    echo = c - c_floor
+                    echo_time.append(echo)
+                # embed()
+
 
                 if chirp_number > 0:
-                    print('chirp number:', chirp_number)
-                    print('chirp times upper threshold:', chirp_times)
-                    print('chirp times lower threshold:', chirp_times2)
-
                     fig, ax = plt.subplots()
                     ax.plot(time, eod, color='C0')
                     ax.set_ylabel('amplitude [mV]', color='C0')
@@ -92,12 +112,17 @@ for dataset in datasets:
                     ax2 = ax.twinx()
                     #ax2.plot(tt, convolve_freq, color='orange')
                     ax2.plot(valid_time, valid_freq, color='orange')
+                    ax2.scatter(art_chirps, np.full_like(art_chirps, 10), color='red', lw=3, zorder=3)
+                    ax2.scatter(chirp_times, np.full_like(chirp_times, 10), color='green', lw=3, zorder=3)
                     ax2.set_ylabel('frequency [Hz]', color='orange')
 
                     plt.axhline(threshold, 0, 40, lw=2, color='black')
                     plt.axhline(threshold2, 0, 40, lw=2, color='black')
                     plt.show()
-                # embed()
+
+                    plt.scatter(echo_time, chirp_height)
+                    plt.show()
+                    embed()
             print('-------------------------------------')
 
             os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
