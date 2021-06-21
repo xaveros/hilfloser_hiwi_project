@@ -95,12 +95,12 @@ def main():
     datafolder = '/home/localadmin/data/electricbehaviour/recordings'
     datasets = data_finder(datafolder)
 
+    print(datasets)
     for idx, dataset in enumerate(datasets):
-         '''loaded:
-         03-11-ab, 03-15-aa, 03-15-ab, 03-15-ac, 03-15-ae, 06-02-aa, 06-02-ab, 06-02-ac 
-         next: zu allen geladenen JAR nochmal (erste drei sind durch), 03-16-ag vollständig'''
-
-         if idx == 2:   # new_recordings: idx 15-17
+        '''loaded:
+        03-11-ab, 03-15-aa, 03-15-ab, 03-15-ac, 03-15-ae, 06-02-aa, 06-02-ab, 06-02-ac 
+        next: zu allen geladenen JAR nochmal (erste fünf sind durch), 03-16-ag vollständig'''
+        if idx == 15:   # new_recordings: idx 15-17
             id = load_id(dataset)
             day_time = load_comment(dataset)
             print(dataset)

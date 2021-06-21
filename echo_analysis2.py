@@ -84,25 +84,70 @@ for dataset in datasets:
                 chirp_times = sorted(chirp_times)
                 chirp_number = len(chirp_times)
 
-                chirp_height = []
-                for chirp in chirp_times:
+                # for chirps in positive direction
+                small_chirps1 = []
+                small_chirps_times1 = []
+                big_chirps1 = []
+                big_chirps_times1 = []
+                for chirp in chirp_times1:
                     start_segment = chirp - 0.1
                     stop_segment = chirp + 0.1
                     window_chirp = valid_freq[(valid_time >= start_segment) & (valid_time < stop_segment)]
                     if len(window_chirp) == 0:
                         embed()
                     height = np.max(window_chirp)
-                    chirp_height.append(height)
+                    height_idx = np.where(valid_freq == height)[0][0]
+                    height_time = valid_time[height_idx]
+                    if height < 200:
+                        small_chirps1.append(height)
+                        small_chirps_times1.append(height_time)
+                    if height > 350:
+                        big_chirps1.append(height)
+                        big_chirps_times1.append(height_time)
+                # for chirps in negative direction
+                small_chirps2 = []
+                small_chirps_times2 = []
+                big_chirps2 = []
+                big_chirps_times2 = []
+                for chirp in chirp_times2:
+                    start_segment = chirp - 0.1
+                    stop_segment = chirp + 0.1
+                    window_chirp = valid_freq[(valid_time >= start_segment) & (valid_time < stop_segment)]
+                    if len(window_chirp) == 0:
+                        embed()
+                    height = np.min(window_chirp)
+                    height_idx = np.where(valid_freq == height)[0][0]
+                    height_time = valid_time[height_idx]
+                    if height > -200:
+                        small_chirps2.append(height)
+                        small_chirps_times2.append(height_time)
+                    if height < -350:
+                        big_chirps2.append(height)
+                        big_chirps_times2.append(height_time)
 
 
                 'align art_chirps to chirps'
-                echo_time = []
-                for c in chirp_times:
+                # for positive/negative small/big chirps
+                echo_small_chirps_time1 = []
+                for c in small_chirps_times1:
                     c_floor = np.floor(c)
                     echo = c - c_floor
-                    echo_time.append(echo)
-                # embed()
-
+                    echo_small_chirps_time1.append(echo)
+                echo_small_chirps_time2 = []
+                for c in small_chirps_times2:
+                    c_floor = np.floor(c)
+                    echo = c - c_floor
+                    echo_small_chirps_time2.append(echo)
+                echo_big_chirps_time1 = []
+                for c in big_chirps_times1:
+                    c_floor = np.floor(c)
+                    echo = c - c_floor
+                    echo_big_chirps_time1.append(echo)
+                echo_big_chirps_time2 = []
+                for c in big_chirps_times2:
+                    c_floor = np.floor(c)
+                    echo = c - c_floor
+                    echo_big_chirps_time2.append(echo)
 
                 if chirp_number > 0:
                     fig, ax = plt.subplots()
@@ -112,15 +157,23 @@ for dataset in datasets:
                     ax2 = ax.twinx()
                     #ax2.plot(tt, convolve_freq, color='orange')
                     ax2.plot(valid_time, valid_freq, color='orange')
-                    ax2.scatter(art_chirps, np.full_like(art_chirps, 10), color='red', lw=3, zorder=3)
-                    ax2.scatter(chirp_times, np.full_like(chirp_times, 10), color='green', lw=3, zorder=3)
+
+                    ax2.scatter(art_chirps, np.full_like(art_chirps, 10), color='green', lw=3, zorder=3)
+
+                    ax2.scatter(small_chirps_times1, small_chirps1, color='red', lw=3, zorder=3)
+                    ax2.scatter(small_chirps_times2, small_chirps2, color='red', lw=3, zorder=3)
+                    ax2.scatter(big_chirps_times1, big_chirps1, color='yellow', lw=3, zorder=3)
+                    ax2.scatter(big_chirps_times2, big_chirps2, color='yellow', lw=3, zorder=3)
                     ax2.set_ylabel('frequency [Hz]', color='orange')
 
                     plt.axhline(threshold, 0, 40, lw=2, color='black')
                     plt.axhline(threshold2, 0, 40, lw=2, color='black')
                     plt.show()
 
-                    plt.scatter(echo_time, chirp_height)
+                    plt.scatter(echo_small_chirps_time1, small_chirps1, c='r')
+                    plt.scatter(echo_small_chirps_time2, small_chirps2, c='darkred')
+                    plt.scatter(echo_big_chirps_time1, big_chirps1, c='y')
+                    plt.scatter(echo_big_chirps_time2, big_chirps2, c='gold')
                     plt.show()
                     embed()
             print('-------------------------------------')

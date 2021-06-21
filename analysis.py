@@ -188,7 +188,6 @@ def jar_analysis(dataset, dataset_dict, keys):
             onset = (np.arange(0, len(pre_data) * dt))[-1]
 
             eod_times, _ = detect_eod_times(time, trace, threshold=np.mean(trace))
-            eod_times = eod_times[eod_times >= 0]
 
             # amplitude to frequency
             difference = np.diff(eod_times)
@@ -211,6 +210,9 @@ def jar_analysis(dataset, dataset_dict, keys):
             for idx, e in enumerate(eod_times):
                 if e > eod_times[-1]:
                     eod_times[idx] = eod_times[idx + 1] - period
+                # if e < eod_times[idx - 1]:
+                #    eod_times[idx] = eod_times[idx - 1] + period
+            eod_times = eod_times[eod_times >= 0]
 
             eod_max = []
             for et in eod_times:
