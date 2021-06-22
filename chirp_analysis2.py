@@ -133,9 +133,12 @@ for dataset in datasets:
                         big_chirps2.append(height)
                         big_chirps_times2.append(height_time)
 
+
                 if chirp_number > 0:
+                    embed()
+                    quit()
                     print('chirp number:', chirp_number)
-                    print('chirp times upper threshold:', chirp_times)
+                    print('chirp times upper threshold:', chirp_times1)
                     print('chirp times lower threshold:', chirp_times2)
 
                     fig, ax = plt.subplots()

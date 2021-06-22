@@ -44,6 +44,8 @@ for dataset in datasets:
             loops_raw_eod = np.load('%s_loops_raw_eod.npy' % load_key, allow_pickle=True)
             loops_valid_eod = np.load('%s_loops_valid_eod.npy' % load_key, allow_pickle=True)
 
+            echo_chirp_times = []
+
             for idx, freq in enumerate(loops_frequency):
                 print('loop number:', idx)
 
@@ -82,6 +84,7 @@ for dataset in datasets:
                 chirp_times = chirp_times1 + chirp_times2
 
                 chirp_times = sorted(chirp_times)
+
                 chirp_number = len(chirp_times)
 
                 # for chirps in positive direction
@@ -126,28 +129,57 @@ for dataset in datasets:
                         big_chirps_times2.append(height_time)
 
 
-                'align art_chirps to chirps'
+                'time to chirp after artifical chirp'
                 # for positive/negative small/big chirps
                 echo_small_chirps_time1 = []
                 for c in small_chirps_times1:
                     c_floor = np.floor(c)
                     echo = c - c_floor
                     echo_small_chirps_time1.append(echo)
+                    echo_chirp_times.append(echo)
                 echo_small_chirps_time2 = []
                 for c in small_chirps_times2:
                     c_floor = np.floor(c)
                     echo = c - c_floor
                     echo_small_chirps_time2.append(echo)
+                    echo_chirp_times.append(echo)
                 echo_big_chirps_time1 = []
                 for c in big_chirps_times1:
                     c_floor = np.floor(c)
                     echo = c - c_floor
                     echo_big_chirps_time1.append(echo)
+                    echo_chirp_times.append(echo)
                 echo_big_chirps_time2 = []
                 for c in big_chirps_times2:
                     c_floor = np.floor(c)
                     echo = c - c_floor
                     echo_big_chirps_time2.append(echo)
+                    echo_chirp_times.append(echo)
+
+                'actual chirpfrequency per 50ms, not needed I guess:'
+                '''chirp_freq = []
+                chirp_freq_times = []
+                for idx, ac in enumerate(art_chirps):
+                    art_chirps_freq = art_chirps[-1] / len(art_chirps)
+                    start_intervall = ac
+                    stop_intervall = ac + 1/art_chirps_freq
+                    intervall_time = valid_time[(valid_time >= start_intervall) & (valid_time < stop_intervall)]
+
+                    window_size = 0.05
+                    window_intervall = np.arange(start_intervall, stop_intervall, window_size)
+                    for i, wi in enumerate(window_intervall):
+                        chirp_freq_times.append(wi)
+                        window_time = intervall_time[(intervall_time > wi) & (intervall_time <= (wi + window_size))]
+                        chirp_number_window = 0
+                        for ct in chirp_times:
+                            if ct < window_time[-1] and ct >= window_time[0]:
+                                chirp_number_window += 1
+                        if chirp_number_window == 0:
+                            chirp_freq.append(0)
+                        else:
+                            chirp_freq_intervall = window_size / chirp_number_window
+                            chirp_freq.append(chirp_freq_intervall)
+                '''
 
                 if chirp_number > 0:
                     fig, ax = plt.subplots()
@@ -155,7 +187,6 @@ for dataset in datasets:
                     ax.set_ylabel('amplitude [mV]', color='C0')
 
                     ax2 = ax.twinx()
-                    #ax2.plot(tt, convolve_freq, color='orange')
                     ax2.plot(valid_time, valid_freq, color='orange')
 
                     ax2.scatter(art_chirps, np.full_like(art_chirps, 10), color='green', lw=3, zorder=3)
@@ -168,14 +199,21 @@ for dataset in datasets:
 
                     plt.axhline(threshold, 0, 40, lw=2, color='black')
                     plt.axhline(threshold2, 0, 40, lw=2, color='black')
-                    plt.show()
+                    #plt.show()
 
                     plt.scatter(echo_small_chirps_time1, small_chirps1, c='r')
                     plt.scatter(echo_small_chirps_time2, small_chirps2, c='darkred')
                     plt.scatter(echo_big_chirps_time1, big_chirps1, c='y')
                     plt.scatter(echo_big_chirps_time2, big_chirps2, c='gold')
-                    plt.show()
-                    embed()
+                    plt.xlabel('time after artifical chirp [s]')
+                    plt.ylabel('chirp size [Hz]')
+                    #plt.show()
+
+            bin_widths = np.arange(0, 1, 0.05)
+            print(echo_chirp_times)
+            plt.bar(echo_chirp_times, width=bin_widths)
+            plt.show()
+
             print('-------------------------------------')
 
             os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)

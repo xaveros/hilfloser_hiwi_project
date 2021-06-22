@@ -227,8 +227,10 @@ def jar_analysis(dataset, dataset_dict, keys):
 
             # valid eod = eod values bigger than the half of the maximum eod (to filter out fish turns)
             valid_eod = eod_max > (0.6 * np.max(eod_max))
-            valid_eod = valid_eod[:-1]
-
+            if len(valid_eod) > len(freq_filt):
+                valid_eod = valid_eod[:len(freq_filt)]
+            if len(valid_eod) < len(freq_filt):
+                freq_filt = freq_filt[:len(valid_eod)]
             # valid eod contains either True (bigger than 0.5*max) or False (smaller than 0.5*max)
             # values smaller (False) will be but as NaN, next step in chirp_analysis2
             freq_filt[valid_eod < 1.0] = np.nan
