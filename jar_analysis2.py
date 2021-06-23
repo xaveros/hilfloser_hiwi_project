@@ -24,7 +24,8 @@ jar_keys = [(5.0, 0.0, False), (-5.0, 0.0, False)]
 
 for dataset in datasets:
     dataset = dataset[-17:-4]
-    if dataset == '2021-03-15-ac':  # temporaly because data is loaded there
+    print(dataset)
+    if dataset == '2021-03-15-ab':  # temporaly because data is loaded there
 
         os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
@@ -44,7 +45,6 @@ for dataset in datasets:
             loops_raw_time = np.load('%s_loops_raw_time.npy' % load_key, allow_pickle=True)
             loops_raw_eod = np.load('%s_loops_raw_eod.npy' % load_key, allow_pickle=True)
             loops_valid_eod = np.load('%s_loops_valid_eod.npy' % load_key, allow_pickle=True)
-
 
             # new list with time and frequency fulfilling the condition of valid_eod
             ttt = []
@@ -74,6 +74,9 @@ for dataset in datasets:
                 valid_time = eod_times[valid_eod == 1]
                 valid_freq = freq[valid_eod == 1]
 
+                # filter frequency
+                # valid_freq = filter_data(valid_freq, n=500)
+
                 fig, ax = plt.subplots()
                 ax.plot(time, eod, color='C0')
                 ax.set_ylabel('amplitude [mV]', color='C0')
@@ -86,7 +89,7 @@ for dataset in datasets:
                 ax2.set_ylabel('frequency [Hz]', color='orange')
 
                 sv, sc = curve_fit(jar_fit_function2, valid_time[valid_time > 10] - 10.0, valid_freq[valid_time > 10],
-                                   [2, 5])  # working: [2, 2, 10, 45]
+                                   [1, 5])  # working: [2, 2, 10, 45]
                 ax2.plot(valid_time[valid_time > 10], jar_fit_function2(valid_time[valid_time > 10] - 10, *sv), color='black')
                 plt.show()
 
@@ -115,8 +118,3 @@ for dataset in datasets:
             os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
         embed()
-        quit()
-
-
-
-

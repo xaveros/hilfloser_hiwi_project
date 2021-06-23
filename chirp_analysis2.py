@@ -14,6 +14,8 @@ from analysis import filter_data
 from analysis import threshold_crossing
 from analysis import filter_data
 from main import data_finder
+from main import load_id
+from main import load_comment
 
 datafolder = '/home/localadmin/data/electricbehaviour/recordings'
 datasets = data_finder(datafolder)
@@ -22,7 +24,9 @@ chirp_keys = [(150.0, 750.0, False), (-150.0, 750.0, False), (150.0, 0.0, False)
 
 for dataset in datasets:
     dataset = dataset[-17:-4]
-    if dataset == '2021-03-15-aa':  # temporaly because data is loaded there
+    if dataset == '2021-03-15-ab':  # temporaly because data is loaded there
+        id = load_id(datafolder + '/' + dataset + '/' + dataset + '.nix')
+        comment = load_comment(datafolder + '/' + dataset + '/' + dataset + '.nix')
 
         os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
@@ -48,7 +52,6 @@ for dataset in datasets:
 
             for idx, freq in enumerate(loops_frequency):
                 print('loop number:', idx)
-
 
                 eod = loops_raw_eod[idx]
                 eod_times = loops_eod_time[idx]
@@ -135,8 +138,6 @@ for dataset in datasets:
 
 
                 if chirp_number > 0:
-                    embed()
-                    quit()
                     print('chirp number:', chirp_number)
                     print('chirp times upper threshold:', chirp_times1)
                     print('chirp times lower threshold:', chirp_times2)
@@ -158,7 +159,9 @@ for dataset in datasets:
                     plt.axhline(threshold2, 0, 40, lw=2, color='black')
                     plt.xlabel('time [s]')
                     if key[1] > 0:
-                        plt.title('delta F: %s' % df)
+                        plt.title('%s, %s, %s, delta F: %s' % (id, comment, key, df))
+                    else:
+                        plt.title('%s, %s, %s' % (id, comment, key))
                     plt.show()
                 # embed()
             print('-------------------------------------')

@@ -53,6 +53,9 @@ for dataset in datasets:
                 eod_times = loops_eod_time[idx]
                 valid_eod = loops_valid_eod[idx]
                 time = loops_raw_time[idx]
+
+                start_art_chirps = 1
+                stop_art_chirps = 59
                 art_chirps = np.arange(1, 59, 1)
 
                 # correction of false eod_times values (values of 6s or something at 0.01s time), put in analysis
@@ -71,6 +74,10 @@ for dataset in datasets:
                 for idx, vf in enumerate(valid_freq[:25]):
                     if vf < -200:
                         valid_freq[idx] = np.median(valid_freq[:50])
+
+                for ix, f in enumerate(valid_freq):
+                    if f > 1000 or f < -1000:
+                        valid_freq[ix] = np.median(valid_freq[ix-50:ix])
 
                 threshold_value = 30
                 threshold = threshold_value
@@ -93,6 +100,8 @@ for dataset in datasets:
                 big_chirps1 = []
                 big_chirps_times1 = []
                 for chirp in chirp_times1:
+                    if chirp >= stop_art_chirps:
+                        continue
                     start_segment = chirp - 0.1
                     stop_segment = chirp + 0.1
                     window_chirp = valid_freq[(valid_time >= start_segment) & (valid_time < stop_segment)]
@@ -113,6 +122,8 @@ for dataset in datasets:
                 big_chirps2 = []
                 big_chirps_times2 = []
                 for chirp in chirp_times2:
+                    if chirp >= stop_art_chirps:
+                        continue
                     start_segment = chirp - 0.1
                     stop_segment = chirp + 0.1
                     window_chirp = valid_freq[(valid_time >= start_segment) & (valid_time < stop_segment)]
@@ -199,20 +210,36 @@ for dataset in datasets:
 
                     plt.axhline(threshold, 0, 40, lw=2, color='black')
                     plt.axhline(threshold2, 0, 40, lw=2, color='black')
-                    #plt.show()
+                    plt.show()
 
                     plt.scatter(echo_small_chirps_time1, small_chirps1, c='r')
                     plt.scatter(echo_small_chirps_time2, small_chirps2, c='darkred')
                     plt.scatter(echo_big_chirps_time1, big_chirps1, c='y')
                     plt.scatter(echo_big_chirps_time2, big_chirps2, c='gold')
-                    plt.xlabel('time after artifical chirp [s]')
+                    plt.xlabel('time difference to artifical chirp [s]')
                     plt.ylabel('chirp size [Hz]')
-                    #plt.show()
+                    plt.show()
 
-            bin_widths = np.arange(0, 1, 0.05)
-            print(echo_chirp_times)
-            plt.bar(echo_chirp_times, width=bin_widths)
+            'x =  numberchirps / window'
+            window_size = 0.05
+            bin_widths = np.arange(0, 1, window_size)
+
+            chirp_frequency = []
+            for bw in bin_widths:
+                number_echos = (echo_chirp_times >= bw) & (echo_chirp_times < (bw + window_size))
+                number = 0
+                for n in number_echos:
+                    if n == True:
+                        number += 1
+                chirp_frequency.append(window_size / number)
+
+            # print(echo_chirp_times)
+            plt.plot(bin_widths, chirp_frequency)
+            plt.xlabel('response time to artifical chirp [s]')
+            plt.ylabel('chirp frequency [Hz]')
             plt.show()
+            embed()
+            quit()
 
             print('-------------------------------------')
 
