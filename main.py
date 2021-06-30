@@ -109,7 +109,8 @@ def main():
 
             dataset_dict = load_data_dictionary(dataset)
 
-            chirp_keys = [(-50.0, 0.0, False), (-150.0, 750.0, False)] #,(150.0, 750.0, False), (-150.0, 0.0, False), (150.0, 0.0, False), (50.0, 0.0, False),]
+            chirp_keys = [(-50.0, 0.0, False), (-150.0, 750.0, False), (150.0, 750.0, False), (-150.0, 0.0, False),
+            (150.0, 0.0, False), (50.0, 0.0, False)]
             chirp_analysis(dataset, dataset_dict, chirp_keys, id)
 
             jar_keys = [(-5.0, 0.0, False), (5.0, 0.0, False)]

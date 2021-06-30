@@ -61,9 +61,9 @@ for dataset in datasets:
                 # correction of false eod_times values (values of 6s or something at 0.01s time), put in analysis
                 eodf = np.nanmean(freq)
                 period = 1 / eodf
-                for idx, e in enumerate(eod_times):
-                    if e > 5 * np.mean(eod_times[idx:idx+10]):
-                        eod_times[idx] = eod_times[idx + 1] - period
+                for idx1, e in enumerate(eod_times):
+                    if e > 5 * np.mean(eod_times[idx1:idx1+10]):
+                        eod_times[idx1] = eod_times[idx1 + 1] - period
 
                 valid_time = eod_times[valid_eod == 1]
                 valid_true_freq = freq[valid_eod == 1]
@@ -71,9 +71,9 @@ for dataset in datasets:
 
                 valid_freq = filter_data(valid_freq, n=3)
 
-                for idx, vf in enumerate(valid_freq[:25]):
+                for idx2, vf in enumerate(valid_freq[:25]):
                     if vf < -200:
-                        valid_freq[idx] = np.median(valid_freq[:50])
+                        valid_freq[idx2] = np.median(valid_freq[:50])
 
                 if key[1] > 0:
                     fakefish_freq = key[1]
@@ -142,7 +142,7 @@ for dataset in datasets:
                 print('chirp times upper threshold:', chirp_times1)
                 print('chirp times lower threshold:', chirp_times2)
 
-                fig, ax = plt.subplots()
+                fig, ax = plt.subplots(figsize=(11.6, 8.2))
                 ax.plot(time, eod, color='C0')
                 ax.set_ylabel('amplitude [mV]', color='C0')
 
@@ -164,9 +164,10 @@ for dataset in datasets:
                     plt.title('%s, %s, %s' % (id, comment, key))
                 # plt.show()
 
-                plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/chirp_plots/'
-                            '%s, %s, %s, loop_%s.png' % (dataset, id, comment, key, idx))
-                # embed()
+                plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/chirp_plots/%s/'
+                            '%s, %s, %s, loop_%s.png' % (dataset, k_str, id, comment, key, idx))
+                plt.close()
+
             print('-------------------------------------')
 
             os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)

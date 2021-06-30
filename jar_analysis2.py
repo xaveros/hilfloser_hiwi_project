@@ -104,8 +104,8 @@ for dataset in datasets:
                 plt.title('%s, %s, %s, loop_%s' % (id, comment, key, idx))
                 # plt.show()
 
-                plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/jar_plots/'
-                            '%s, %s, %s, loop_%s.png' % (dataset, id, comment, key, idx))
+                plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/jar_plots/%s/'
+                            '%s, %s, %s, loop_%s.png' % (dataset, k_str, id, comment, key, idx))
 
                 print('tau1:', sv[2])
                 taus.append(sv[2])
