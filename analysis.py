@@ -207,6 +207,7 @@ def jar_analysis(dataset, dataset_dict, keys):
             period = 1 / eodf
             segment = 1.25 * period
 
+            # sort out eod_times bigger than last eod_time or smaller than 0
             for idx, e in enumerate(eod_times):
                 if e > eod_times[-1]:
                     eod_times[idx] = eod_times[idx + 1] - period
@@ -214,11 +215,13 @@ def jar_analysis(dataset, dataset_dict, keys):
                 #    eod_times[idx] = eod_times[idx - 1] + period
             eod_times = eod_times[eod_times >= 0]
 
+            # make window for every eod_time, get max out of it
             eod_max = []
             for et in eod_times:
                 start_segment = et - segment / 2
                 stop_segment = et + segment / 2
                 window_eod = trace[(time >= start_segment) & (time < stop_segment)]
+                # as this has caused problems often..
                 if len(window_eod) == 0:
                     print('window_eod empty')
                     embed()
@@ -231,16 +234,19 @@ def jar_analysis(dataset, dataset_dict, keys):
                 valid_eod = valid_eod[:len(freq_filt)]
             if len(valid_eod) < len(freq_filt):
                 freq_filt = freq_filt[:len(valid_eod)]
+
             # valid eod contains either True (bigger than 0.5*max) or False (smaller than 0.5*max)
             # values smaller (False) will be but as NaN, next step in chirp_analysis2
             freq_filt[valid_eod < 1.0] = np.nan
 
+            # append the whole data to lists
             loops_frequency.append(freq_filt)
             loops_time.append(eod_times[:-1])
             loops_valid_eod.append(valid_eod)
             loops_raw_eod.append(trace)
             loops_raw_time.append(time)
 
+        # save data to npy files at the following places
         savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/%s' % (dataset[-17:-4], k_str)
         key_savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset[-17:-4]
 
@@ -265,6 +271,7 @@ def chirp_analysis(dataset, dataset_dict, keys, id):
 
     for k in keys:
         print(k)
+        # get key in wanted shape
         k_str = str(k).replace(' ', '')
 
         loops_frequency = []
@@ -291,8 +298,6 @@ def chirp_analysis(dataset, dataset_dict, keys, id):
             # 'glue' eod and pre_data together
             trace = np.hstack((pre_data, eod_array[i0:i1]))
 
-            # smoothen data by small filter
-            print('smoothing..')
 
             trace = trace - np.median(trace)
 
@@ -304,6 +309,7 @@ def chirp_analysis(dataset, dataset_dict, keys, id):
             timespan.append((np.arange(0, len(trace)) * dt)[-1])
 
             'smoothing data by small filter'
+            print('smoothing..')
             kernel_core = 5
             kernel = np.ones(kernel_core) / kernel_core
 
@@ -341,10 +347,12 @@ def chirp_analysis(dataset, dataset_dict, keys, id):
             period = 1 / eodf
             segment = 1.25 * period
 
+            # filter eod_times bigger than the last eod_time
             for idx, e in enumerate(eod_times):
                 if e > eod_times[-1]:
                     eod_times[idx] = eod_times[idx + 1] - period
 
+            # make window for every eod_time, get max out of it
             eod_max = []
             for et in eod_times:
                 start_segment = et - segment/2
@@ -366,6 +374,7 @@ def chirp_analysis(dataset, dataset_dict, keys, id):
 
             eod_times = eod_times[:-1]
 
+            # append the whole data to lists
             loops_valid_eod.append(valid_eod)
             loops_time.append(eod_times)
             loops_frequency.append(frequency)
@@ -376,6 +385,7 @@ def chirp_analysis(dataset, dataset_dict, keys, id):
             # plt.scatter(eod_times, valid_eod, color='orange')
             # plt.show()
 
+        # save data to npy files at the following places
         savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/%s' % (dataset[-17:-4], k_str)
         key_savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset[-17:-4]
 

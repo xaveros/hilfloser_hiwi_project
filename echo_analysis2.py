@@ -14,6 +14,8 @@ from analysis import filter_data
 from analysis import threshold_crossing
 from analysis import filter_data
 from main import data_finder
+from main import load_id
+from main import load_comment
 
 datafolder = '/home/localadmin/data/electricbehaviour/recordings'
 datasets = data_finder(datafolder)
@@ -22,6 +24,8 @@ echo_keys = [(-50.0, 0.0, True), (50.0, 0.0, True)]
 for dataset in datasets:
     dataset = dataset[-17:-4]
     if dataset == '2021-03-15-aa':  # temporaly because data is loaded there
+        id = load_id(datafolder + '/' + dataset + '/' + dataset + '.nix')
+        comment = load_comment(datafolder + '/' + dataset + '/' + dataset + '.nix')
 
         os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 

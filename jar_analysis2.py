@@ -15,6 +15,8 @@ from analysis import threshold_crossing
 from analysis import jar_fit_function
 from analysis import jar_fit_function2
 from main import data_finder
+from main import load_id
+from main import load_comment
 
 # eod_times mit nans darin, deswegen plotten von eod_max nicht möglich
 
@@ -26,6 +28,8 @@ for dataset in datasets:
     dataset = dataset[-17:-4]
     print(dataset)
     if dataset == '2021-03-15-ab':  # temporaly because data is loaded there
+        id = load_id(datafolder + '/' + dataset + '/' + dataset + '.nix')
+        comment = load_comment(datafolder + '/' + dataset + '/' + dataset + '.nix')
 
         os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
@@ -47,12 +51,10 @@ for dataset in datasets:
             loops_valid_eod = np.load('%s_loops_valid_eod.npy' % load_key, allow_pickle=True)
 
             # new list with time and frequency fulfilling the condition of valid_eod
-            ttt = []
-            fff = []
             taus = []
             responses = []
             for idx, freq in enumerate(loops_frequency):
-                # sort out bad fits
+                # sort out bad recordings
                 if dataset == '2021-03-15-ac':
                     if key == (5.0, 0.0, False):
                         if idx == 1 or idx == 2 or idx == 3 or idx == 4:
@@ -77,21 +79,8 @@ for dataset in datasets:
                 # filter frequency
                 # valid_freq = filter_data(valid_freq, n=500)
 
-                fig, ax = plt.subplots()
-                ax.plot(time, eod, color='C0')
-                ax.set_ylabel('amplitude [mV]', color='C0')
-                ax.set_title('single loop')
-
-                # ax.scatter(eod_times, valid_eod, color='green', lw=3)
-
-                ax2 = ax.twinx()
-                ax2.scatter(valid_time, valid_freq, color='orange')
-                ax2.set_ylabel('frequency [Hz]', color='orange')
-
-                sv, sc = curve_fit(jar_fit_function2, valid_time[valid_time > 10] - 10.0, valid_freq[valid_time > 10],
-                                   [1, 5])  # working: [2, 2, 10, 45]
-                ax2.plot(valid_time[valid_time > 10], jar_fit_function2(valid_time[valid_time > 10] - 10, *sv), color='black')
-                plt.show()
+                sv, sc = curve_fit(jar_fit_function, valid_time[valid_time > 10] - 10.0, valid_freq[valid_time > 10],
+                                   [2, 2, 10, 40])         # working: [2, 2, 10, 45]
 
                 before_jar = np.mean(valid_freq[valid_time < 5])
                 after_jar = np.mean(valid_freq[(valid_time < valid_time[-1]) & (valid_time > 35)])
@@ -99,22 +88,37 @@ for dataset in datasets:
                 responses.append(response)
                 print('response in Hz:', response)
 
-                # kick loops with not working fit
-                if sv[1] > 50:
-                    continue
-                print('tau:', sv[1])
-                taus.append(sv[1])
+                fig, ax = plt.subplots(figsize=(11.6, 8.2))
+                ax.plot(time, eod, color='C0')
+                ax.set_ylabel('amplitude [mV]', color='C0')
 
-                ttt.append(valid_time)
-                fff.append(valid_freq)
+                # ax.scatter(eod_times, valid_eod, color='green', lw=3)
+
+                ax2 = ax.twinx()
+                ax2.scatter(valid_time, valid_freq, color='orange', label='response: %s Hz' % response)
+                ax2.set_ylabel('frequency [Hz]', color='orange')
+
+                ax2.plot(valid_time[valid_time > 10], jar_fit_function(valid_time[valid_time > 10] - 10, *sv), color='black',
+                         label='sv: a1: %.2f, a2: %.2f, tau1: %.2f, tau2: %.2f' % (sv[0], sv[1], sv[2], sv[3]))
+                plt.legend(loc='lower right')
+                plt.title('%s, %s, %s, loop_%s' % (id, comment, key, idx))
+                # plt.show()
+
+                plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/jar_plots/'
+                            '%s, %s, %s, loop_%s.png' % (dataset, id, comment, key, idx))
+
+                print('tau1:', sv[2])
+                taus.append(sv[2])
 
             print('mean over taus:', np.mean(taus))
 
-            jar_savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/%s' % (dataset, k_str)
-            np.save(jar_savepath + '/%s_jar.npy' % k_str, zip(taus, responses))
+            # jar_savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/%s' % (dataset, k_str)
+            # np.save(jar_savepath + '/%s_jar.npy' % k_str, zip(taus, responses))
 
             # fitted tau1 takes whatever value near 0 put in
             print('-------------------------------------')
             os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
-        embed()
+    embed()
+
+

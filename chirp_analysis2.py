@@ -137,32 +137,35 @@ for dataset in datasets:
                         big_chirps_times2.append(height_time)
 
 
-                if chirp_number > 0:
-                    print('chirp number:', chirp_number)
-                    print('chirp times upper threshold:', chirp_times1)
-                    print('chirp times lower threshold:', chirp_times2)
+                # if chirp_number > 0:
+                print('chirp number:', chirp_number)
+                print('chirp times upper threshold:', chirp_times1)
+                print('chirp times lower threshold:', chirp_times2)
 
-                    fig, ax = plt.subplots()
-                    ax.plot(time, eod, color='C0')
-                    ax.set_ylabel('amplitude [mV]', color='C0')
+                fig, ax = plt.subplots()
+                ax.plot(time, eod, color='C0')
+                ax.set_ylabel('amplitude [mV]', color='C0')
 
-                    ax2 = ax.twinx()
-                    #ax2.plot(tt, convolve_freq, color='orange')
-                    ax2.plot(valid_time, valid_freq, color='orange')
-                    ax2.scatter(small_chirps_times1, small_chirps1, color='red', lw=3, zorder=3)
-                    ax2.scatter(small_chirps_times2, small_chirps2, color='red', lw=3, zorder=3)
-                    ax2.scatter(big_chirps_times1, big_chirps1, color='yellow', lw=3, zorder=3)
-                    ax2.scatter(big_chirps_times2, big_chirps2, color='yellow', lw=3, zorder=3)
-                    ax2.set_ylabel('frequency [Hz]', color='orange')
+                ax2 = ax.twinx()
+                #ax2.plot(tt, convolve_freq, color='orange')
+                ax2.plot(valid_time, valid_freq, color='orange')
+                ax2.scatter(small_chirps_times1, small_chirps1, color='red', lw=3, zorder=3)
+                ax2.scatter(small_chirps_times2, small_chirps2, color='red', lw=3, zorder=3)
+                ax2.scatter(big_chirps_times1, big_chirps1, color='yellow', lw=3, zorder=3)
+                ax2.scatter(big_chirps_times2, big_chirps2, color='yellow', lw=3, zorder=3)
+                ax2.set_ylabel('frequency [Hz]', color='orange')
 
-                    plt.axhline(threshold, 0, 40, lw=2, color='black')
-                    plt.axhline(threshold2, 0, 40, lw=2, color='black')
-                    plt.xlabel('time [s]')
-                    if key[1] > 0:
-                        plt.title('%s, %s, %s, delta F: %s' % (id, comment, key, df))
-                    else:
-                        plt.title('%s, %s, %s' % (id, comment, key))
-                    plt.show()
+                plt.axhline(threshold, 0, 40, lw=2, color='black')
+                plt.axhline(threshold2, 0, 40, lw=2, color='black')
+                plt.xlabel('time [s]')
+                if key[1] > 0:
+                    plt.title('%s, %s, %s, delta F: %s' % (id, comment, key, df))
+                else:
+                    plt.title('%s, %s, %s' % (id, comment, key))
+                # plt.show()
+
+                plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/chirp_plots/'
+                            '%s, %s, %s, loop_%s.png' % (dataset, id, comment, key, idx))
                 # embed()
             print('-------------------------------------')
 
