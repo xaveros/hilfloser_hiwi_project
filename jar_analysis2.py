@@ -18,15 +18,13 @@ from main import data_finder
 from main import load_id
 from main import load_comment
 
-# eod_times mit nans darin, deswegen plotten von eod_max nicht möglich
-
 datafolder = '/home/localadmin/data/electricbehaviour/recordings'
 datasets = data_finder(datafolder)
 jar_keys = [(5.0, 0.0, False), (-5.0, 0.0, False)]
 
 for dataset in datasets:
     dataset = dataset[-17:-4]
-    print(dataset)
+
     if dataset == '2021-03-15-ab':  # temporaly because data is loaded there
         id = load_id(datafolder + '/' + dataset + '/' + dataset + '.nix')
         comment = load_comment(datafolder + '/' + dataset + '/' + dataset + '.nix')
@@ -53,6 +51,7 @@ for dataset in datasets:
             # new list with time and frequency fulfilling the condition of valid_eod
             taus = []
             responses = []
+
             for idx, freq in enumerate(loops_frequency):
                 # sort out bad recordings
                 if dataset == '2021-03-15-ac':
@@ -76,12 +75,11 @@ for dataset in datasets:
                 valid_time = eod_times[valid_eod == 1]
                 valid_freq = freq[valid_eod == 1]
 
-                # filter frequency
-                # valid_freq = filter_data(valid_freq, n=500)
+                # fit of frequency course
+                sv, sc = curve_fit(jar_fit_function2, valid_time[valid_time > 10] - 10.0, valid_freq[valid_time > 10],
+                                   [2, 5])         # working: [2, 2, 10, 45]
 
-                sv, sc = curve_fit(jar_fit_function, valid_time[valid_time > 10] - 10.0, valid_freq[valid_time > 10],
-                                   [2, 2, 10, 40])         # working: [2, 2, 10, 45]
-
+                # absolute JAR response of base to after stimulus in Hz
                 before_jar = np.mean(valid_freq[valid_time < 5])
                 after_jar = np.mean(valid_freq[(valid_time < valid_time[-1]) & (valid_time > 35)])
                 response = after_jar - before_jar
@@ -89,23 +87,28 @@ for dataset in datasets:
                 print('response in Hz:', response)
 
                 fig, ax = plt.subplots(figsize=(11.6, 8.2))
+                # plot raw data
                 ax.plot(time, eod, color='C0')
                 ax.set_ylabel('amplitude [mV]', color='C0')
 
                 # ax.scatter(eod_times, valid_eod, color='green', lw=3)
 
                 ax2 = ax.twinx()
+                # plot frequency
                 ax2.scatter(valid_time, valid_freq, color='orange', label='response: %s Hz' % response)
                 ax2.set_ylabel('frequency [Hz]', color='orange')
 
-                ax2.plot(valid_time[valid_time > 10], jar_fit_function(valid_time[valid_time > 10] - 10, *sv), color='black',
-                         label='sv: a1: %.2f, a2: %.2f, tau1: %.2f, tau2: %.2f' % (sv[0], sv[1], sv[2], sv[3]))
+                # plot fit
+                ax2.plot(valid_time[valid_time > 10], jar_fit_function2(valid_time[valid_time > 10] - 10, *sv),
+                         color='black')# , label='sv: a1: %.2f, a2: %.2f, tau1: %.2f, tau2: %.2f'
+                                         #     % (sv[0], sv[1], sv[2], sv[3]))
                 plt.legend(loc='lower right')
                 plt.title('%s, %s, %s, loop_%s' % (id, comment, key, idx))
-                # plt.show()
+                plt.show()
 
-                plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/jar_plots/%s/'
-                            '%s, %s, %s, loop_%s.png' % (dataset, k_str, id, comment, key, idx))
+                # plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/jar_plots/%s/'
+                #             '%s, %s, %s, loop_%s.png' % (dataset, k_str, id, comment, key, idx))
+                plt.close()
 
                 print('tau1:', sv[2])
                 taus.append(sv[2])
@@ -119,6 +122,6 @@ for dataset in datasets:
             print('-------------------------------------')
             os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
-    embed()
+        embed()
 
 

@@ -49,7 +49,6 @@ for dataset in datasets:
             loops_raw_eod = np.load('%s_loops_raw_eod.npy' % load_key, allow_pickle=True)
             loops_valid_eod = np.load('%s_loops_valid_eod.npy' % load_key, allow_pickle=True)
 
-
             for idx, freq in enumerate(loops_frequency):
                 print('loop number:', idx)
 
@@ -69,17 +68,21 @@ for dataset in datasets:
                 valid_true_freq = freq[valid_eod == 1]
                 valid_freq = valid_true_freq - np.mean(valid_true_freq)
 
+                # smoothing filter over frequency
                 valid_freq = filter_data(valid_freq, n=3)
 
+                # correct outliers
                 for idx2, vf in enumerate(valid_freq[:25]):
                     if vf < -200:
                         valid_freq[idx2] = np.median(valid_freq[:50])
 
+                # df if fakefish of 750 Hz was on
                 if key[1] > 0:
                     fakefish_freq = key[1]
                     mean_freq = np.mean(valid_true_freq)
                     df = mean_freq - fakefish_freq
 
+                'chirp detection'
                 threshold_value = 30
                 threshold = threshold_value
                 threshold2 = -threshold_value
@@ -95,47 +98,53 @@ for dataset in datasets:
 
                 chirp_number = len(chirp_times)
 
-                # for chirps in positive direction
+                'chirp height and precise chirp time'
+                # frequency threshold for distinction of big and small chirp (300 Hz good?)
+                big_small_chirp_threshold = 300
+                # for chirps in positive direction, for big and small chirps
                 small_chirps1 = []
                 small_chirps_times1 = []
                 big_chirps1 = []
                 big_chirps_times1 = []
                 for chirp in chirp_times1:
+                    # window for each chirp and frequency in it
                     start_segment = chirp - 0.1
                     stop_segment = chirp + 0.1
                     window_chirp = valid_freq[(valid_time >= start_segment) & (valid_time < stop_segment)]
                     if len(window_chirp) == 0:
                         embed()
+                    # height (=max) and height_time where max
                     height = np.max(window_chirp)
                     height_idx = np.where(valid_freq == height)[0][0]
                     height_time = valid_time[height_idx]
-                    if height < 200:
+                    if height <= big_small_chirp_threshold:
                         small_chirps1.append(height)
                         small_chirps_times1.append(height_time)
-                    if height > 350:
+                    if height > big_small_chirp_threshold:
                         big_chirps1.append(height)
                         big_chirps_times1.append(height_time)
-                # for chirps in negative direction
+                # for chirps in negative direction, for big and small chirps
                 small_chirps2 = []
                 small_chirps_times2 = []
                 big_chirps2 = []
                 big_chirps_times2 = []
                 for chirp in chirp_times2:
+                    # window for each chirp and frequency in it
                     start_segment = chirp - 0.1
                     stop_segment = chirp + 0.1
                     window_chirp = valid_freq[(valid_time >= start_segment) & (valid_time < stop_segment)]
                     if len(window_chirp) == 0:
                         embed()
+                    # height (=max) and height_time where max
                     height = np.min(window_chirp)
                     height_idx = np.where(valid_freq == height)[0][0]
                     height_time = valid_time[height_idx]
-                    if height > -200:
+                    if height > -big_small_chirp_threshold:
                         small_chirps2.append(height)
                         small_chirps_times2.append(height_time)
-                    if height < -350:
+                    if height < -big_small_chirp_threshold:
                         big_chirps2.append(height)
                         big_chirps_times2.append(height_time)
-
 
                 # if chirp_number > 0:
                 print('chirp number:', chirp_number)
@@ -143,20 +152,24 @@ for dataset in datasets:
                 print('chirp times lower threshold:', chirp_times2)
 
                 fig, ax = plt.subplots(figsize=(11.6, 8.2))
+                # plot raw data
                 ax.plot(time, eod, color='C0')
                 ax.set_ylabel('amplitude [mV]', color='C0')
 
                 ax2 = ax.twinx()
-                #ax2.plot(tt, convolve_freq, color='orange')
+                # plot frequency
                 ax2.plot(valid_time, valid_freq, color='orange')
+                # scatter chirps
                 ax2.scatter(small_chirps_times1, small_chirps1, color='red', lw=3, zorder=3)
                 ax2.scatter(small_chirps_times2, small_chirps2, color='red', lw=3, zorder=3)
                 ax2.scatter(big_chirps_times1, big_chirps1, color='yellow', lw=3, zorder=3)
                 ax2.scatter(big_chirps_times2, big_chirps2, color='yellow', lw=3, zorder=3)
                 ax2.set_ylabel('frequency [Hz]', color='orange')
 
+                # threshold lines
                 plt.axhline(threshold, 0, 40, lw=2, color='black')
                 plt.axhline(threshold2, 0, 40, lw=2, color='black')
+
                 plt.xlabel('time [s]')
                 if key[1] > 0:
                     plt.title('%s, %s, %s, delta F: %s' % (id, comment, key, df))

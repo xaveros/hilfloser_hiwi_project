@@ -58,6 +58,11 @@ def threshold_crossing(data, time, threshold):
 
 
 def filter_data(data, n):
+    """
+    :param data: raw data
+    :param n: number of datapoints the mean gets computed over
+    :return: filtered data
+    """
     cutf = np.zeros(len(data))
     for k in np.arange(0, len(data) - n):
         kk = int(k)
@@ -117,15 +122,19 @@ def detect_eod_frequency_spectrum(time, eod, nfft=2**15, overlap=0.95, samplingr
 
 
 def jar_analysis(dataset, dataset_dict, keys):
+    # load nix files, eod_array consists of amplitude values
     nf = nix.File.open(dataset, nix.FileMode.ReadOnly)
 
     b = nf.blocks[0]
     eod_array = b.data_arrays['EOD-1']
     dt = eod_array.dimensions[0].sampling_interval
 
+    # for each key..
     for k in keys:
         print(k)
+        # stripped key for file names
         k_str = str(k).replace(' ', '')
+
         loops_frequency = []
         loops_time = []
         loops_valid_eod = []
@@ -264,6 +273,7 @@ def jar_analysis(dataset, dataset_dict, keys):
 
 
 def chirp_analysis(dataset, dataset_dict, keys, id):
+    # load nix files, eod_array consists of amplitude values
     nf = nix.File.open(dataset, nix.FileMode.ReadOnly)
     b = nf.blocks[0]
     eod_array = b.data_arrays['EOD-1']
@@ -271,7 +281,7 @@ def chirp_analysis(dataset, dataset_dict, keys, id):
 
     for k in keys:
         print(k)
-        # get key in wanted shape
+        # stripped key for file names
         k_str = str(k).replace(' ', '')
 
         loops_frequency = []
