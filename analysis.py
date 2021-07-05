@@ -238,7 +238,7 @@ def jar_analysis(dataset, dataset_dict, keys):
                 eod_max.append(max_eod)
 
             # valid eod = eod values bigger than the half of the maximum eod (to filter out fish turns)
-            valid_eod = eod_max > (0.6 * np.max(eod_max))
+            valid_eod = eod_max > (0.6 * np.median(eod_max))
             if len(valid_eod) > len(freq_filt):
                 valid_eod = valid_eod[:len(freq_filt)]
             if len(valid_eod) < len(freq_filt):
