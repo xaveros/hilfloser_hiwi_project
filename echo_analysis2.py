@@ -35,15 +35,13 @@ def echo_time_difference(chirp_times):
         echo_times.append(echo)
     return echo_times
 
-def echo_response(chirps_times):
+def echo_response(echo_chirps_times):
     dt = 1. / 40000
     echo_time = np.arange(.0, 1.0, dt)
     _, kernel = gauss_kernel(0.05, dt)
     response = np.zeros_like(echo_time)
-    for ct in chirps_times:
-        ctt = np.floor(ct)
-        response_time = ct - ctt
-        response[int(response_time // dt)] += 1
+    for ect in echo_chirps_times:
+        response[int(ect // dt)] += 1
     response = np.convolve(response, kernel, mode="same")
     return response, echo_time
 
@@ -57,9 +55,11 @@ def main():
         dataset = dataset[-17:-4]
         if dataset == '2021-03-15-aa':  # temporaly because data is loaded there
             id = load_id(datafolder + '/' + dataset + '/' + dataset + '.nix')
-            comment = load_comment(datafolder + '/' + dataset + '/' + dataset + '.nix')
+            comment = load_comment(datafolder + '/' + dataset + '/' + dataset + '.nix')[0]
 
             os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
+
+            data = []
 
             for key in echo_keys:
                 print(dataset)
@@ -80,7 +80,6 @@ def main():
                 loops_valid_eod = np.load('%s_loops_valid_eod.npy' % load_key, allow_pickle=True)
 
                 echo_chirps_times = []
-                response_ratios = []
                 for idx, freq in enumerate(loops_frequency):
                     print('loop number:', idx)
 
@@ -145,17 +144,6 @@ def main():
                     for ebc in echo_big_chirps_times:
                         echo_chirps_times.append(ebc)
 
-                    response, echo_time = echo_response(chirps_times)
-
-                    max_response = np.max(response)
-                    min_response = np.min(response)
-                    mean_response = np.mean(response)
-
-                    diff_response = max_response - min_response
-
-                    response_ratio = diff_response / mean_response
-                    response_ratios.append(response_ratio)
-
                     # plt.plot(echo_time, response)
                     # plt.plot([echo_time[0], echo_time[-1]], [mean_response, mean_response], ls='--', color='gray')
                     # plt.show()
@@ -193,51 +181,51 @@ def main():
                     # plt.show()
 
                 'chirp frequency (or chirp rate) over all loops, frequency computed for window_size'
-                # windows for which frequency gets detected, put in bins
-                window_size = 0.05
-                bin_widths = np.arange(0, 1, window_size)
-
-                chirp_frequency = []
-                for bw in bin_widths:
-                    # check if chirps lie within the window, if so marked with True
-                    # echo_chirp_times contain the chirps of all loops for this key
-                    number_echos = (echo_chirps_times >= bw) & (echo_chirps_times < (bw + window_size))
-                    # count the amount of True as number of chirps in this window
-                    number = 0
-                    for n in number_echos:
-                        if n == True:
-                            number += 1
-                    # chirp frequency: deviding the window_size by the number of chirps in it
-                    if number == 0:
-                        chirp_frequency.append(0)
-                    else:
-                        chirp_frequency.append(window_size / number)
 
                 dt = 1. / 40000
-                echo_time = np.arange(.0, 1.0, dt)
+                echo_time = np.arange(0, 1, dt)
                 _, kernel = gauss_kernel(0.05, dt)
                 response_all = np.zeros_like(echo_time)
                 for ect in echo_chirps_times:
-                    response[int(ect // dt)] += 1
-                response_all = np.convolve(response, kernel, mode="same")
-                plt.plot(echo_time, response)
-                plt.show()
+                    response_all[int(ect // dt)] += 1
+                response_all = np.convolve(response_all, kernel, mode="same")
 
+                response, echo_time = echo_response(echo_chirps_times)
 
-                # plot frequency per bin
-                plt.plot(bin_widths, chirp_frequency)
+                max_response = np.max(response)
+                min_response = np.min(response)
+                mean_response = np.mean(response)
+
+                diff_response = max_response - min_response
+
+                response_ratio = diff_response / mean_response
+
+                plt.plot(echo_time, response_all)
+                plt.plot([echo_time[0], echo_time[-1]], [mean_response, mean_response], ls='--', color='gray',
+                         label='mean')
                 plt.xlabel('response time to artifical chirp [s]')
                 plt.ylabel('chirp frequency [Hz]')
-                plt.title('')
+                plt.legend(title='response ratio: %s' % response_ratio)
+                plt.title('%s, %s, %s' % (id, comment, key))
 
-                #plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/echo_plots/%s/'
-                #            'chirp_frequency: %s, %s, %s.png' % (dataset, k_str, id, comment, key))
                 plt.show()
+
+                # plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/echo_plots/%s/'
+                #            'chirp_frequency: %s, %s, %s.png' % (dataset, k_str, id, comment, key))
                 # plt.close()
 
                 print('-------------------------------------')
 
+                data_info = [id, comment, k_str, response_ratio]
+                data.append(data_info)
+
+                embed()
+                quit()
                 os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
+
+                savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/%s' % (dataset[-17:], k_str)
+
+                np.save(savepath + '/%s_data.npy' % k_str, data)
 
 
 if __name__ == '__main__':

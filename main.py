@@ -107,20 +107,20 @@ def main():
     for idx, dataset in enumerate(datasets):
         '''loaded:
         03-11-ab, 03-15-aa, 03-15-ab, 03-15-ac, 03-15-ad, 03-15-ae, 03-15-af, 03-16-aa, 03-16-ab, 03-16-ac, 03-16-ad, 
-        03-16-ae, 06-02-aa, 06-02-ab, 06-02-ac '''
-        if idx == 12:   # new_recordings: idx 15-17
+        03-16-ae, 03-16-af, 03-16-ag, 06-02-aa, 06-02-ab, 06-02-ac '''
+        if idx == 14:   # new_recordings: idx 15-17
             id = load_id(dataset)
             day_time = load_comment(dataset)
             print(dataset)
 
             dataset_dict = load_data_dictionary(dataset)
 
-            # chirp_keys = [(-50.0, 0.0, False), (-150.0, 750.0, False), (150.0, 750.0, False), (-150.0, 0.0, False),
-            #               (150.0, 0.0, False), (50.0, 0.0, False)]
-            # chirp_analysis(dataset, dataset_dict, chirp_keys, id)
+            chirp_keys = [(-50.0, 0.0, False), (-150.0, 750.0, False), (150.0, 750.0, False), (-150.0, 0.0, False),
+                          (150.0, 0.0, False), (50.0, 0.0, False)]
+            chirp_analysis(dataset, dataset_dict, chirp_keys, id)
 
-            # jar_keys = [(-5.0, 0.0, False), (5.0, 0.0, False)]
-            # jar_analysis(dataset, dataset_dict, jar_keys)
+            jar_keys = [(-5.0, 0.0, False), (5.0, 0.0, False)]
+            jar_analysis(dataset, dataset_dict, jar_keys)
 
             echo_keys = [(-50.0, 0.0, True), (50.0, 0.0, True)]
             chirp_analysis(dataset, dataset_dict, echo_keys, id)
