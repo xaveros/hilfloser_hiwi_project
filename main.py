@@ -107,7 +107,7 @@ def main():
     for idx, dataset in enumerate(datasets):
         '''loaded:
         03-11-ab, 03-15-aa, 03-15-ab, 03-15-ac, 03-15-ad, 03-15-ae, 03-15-af, 03-16-aa, 03-16-ab, 03-16-ac, 03-16-ad, 
-        03-16-ae, 03-16-af, 03-16-ag, 06-02-aa, 06-02-ab, 06-02-ac '''
+        03-16-ae, 03-16-af, 03-16-ag, 03-16-ah, 06-02-aa, 06-02-ab, 06-02-ac '''
         if idx == 14:   # new_recordings: idx 15-17
             id = load_id(dataset)
             day_time = load_comment(dataset)
