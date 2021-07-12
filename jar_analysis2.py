@@ -29,9 +29,10 @@ def main():
 
         if dataset == '2021-03-16-af':
             continue
-        #if dataset == '2021-03-16-ae':
+        # if dataset == '2021-03-16-ac':
         id = load_id(datafolder + '/' + dataset + '/' + dataset + '.nix')
         comment = load_comment(datafolder + '/' + dataset + '/' + dataset + '.nix')[0]
+
         print(comment)
         os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
@@ -88,48 +89,52 @@ def main():
 
                 valid_freq = valid_freq - before_jar
 
-                # fit of frequency course
-                # sv, sc = curve_fit(jar_fit_function, valid_time[valid_time > 10] - 10.0, valid_freq[valid_time > 10],
-                #                    [2, 1, 20, 25])  # working: [2, 2, 10, 45]
-                sv2, sc2 = curve_fit(jar_fit_function2, valid_time[valid_time > 10] - 10.0, valid_freq[valid_time > 10],
-                                     [2, 5])  # working: [2, 2, 10, 45]
+                'fit of frequency course'
+                # sv, sc = curve_fit(jar_fit_function, valid_time[valid_time > 10] - 10.0,
+                #                    valid_freq[valid_time > 10], [2, 1, 20, 25])  # working: [2, 2, 10, 45]
+                sv2, sc2 = curve_fit(jar_fit_function2, valid_time[valid_time > 10] - 10.0,
+                                     valid_freq[valid_time > 10], [2, 5])  # working: [2, 2, 10, 45]
+
+                tau = sv2[1]
 
                 # print('jar tau1:', sv[2])
                 print('jar2 tau1:', sv2[1])
-                taus.append(sv2[1])
+                if eod_times[-1] > tau > 0.1:
+                    taus.append(tau)
 
-                fig, ax = plt.subplots(figsize=(11.6, 8.2))
-                # plot raw data
-                # ax.plot(time, eod, color='C0')
-                ax.set_ylabel('amplitude [mV]', color='C0')
+                # fig, ax = plt.subplots(figsize=(11.6, 8.2))
+                # # plot raw data
+                # # ax.plot(time, eod, color='C0')
+                # ax.set_ylabel('amplitude [mV]', color='C0')
+                #
+                # ax2 = ax.twinx()
+                # # plot frequency
+                # ax2.scatter(valid_time, valid_freq, color='orange', label='response: %s Hz' % response)
+                # ax2.set_ylabel('frequency [Hz]', color='orange')
+                #
+                # # plot fit
+                # # ax2.plot(valid_time[valid_time > 10], jar_fit_function(valid_time[valid_time > 10] - 10, *sv),
+                # #          color='black', label='sv: a1: %.2f, a2: %.2f, tau1: %.2f, tau2: %.2f'
+                # #                               % (sv[0], sv[1], sv[2], sv[3]))
+                # ax2.plot(valid_time[valid_time > 10], jar_fit_function2(valid_time[valid_time > 10] - 10, *sv2),
+                #          color='grey', label='sv2: a1: %.2f, tau1: %.2f'
+                #                              % (sv2[0], sv2[1]))
+                #
+                # plt.legend(loc='lower right')
+                # plt.title('%s, %s, %s, loop_%s' % (id, comment, key, idx))
+                # plt.show()
+                #
+                # # plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/jar_plots/%s/'
+                # #             '%s, %s, %s, loop_%s.png' % (dataset, k_str, id, comment, key, idx))
+                # plt.close()
 
-                ax2 = ax.twinx()
-                # plot frequency
-                ax2.scatter(valid_time, valid_freq, color='orange', label='response: %s Hz' % response)
-                ax2.set_ylabel('frequency [Hz]', color='orange')
-
-                # plot fit
-                # ax2.plot(valid_time[valid_time > 10], jar_fit_function(valid_time[valid_time > 10] - 10, *sv),
-                #          color='black', label='sv: a1: %.2f, a2: %.2f, tau1: %.2f, tau2: %.2f'
-                #                               % (sv[0], sv[1], sv[2], sv[3]))
-                ax2.plot(valid_time[valid_time > 10], jar_fit_function2(valid_time[valid_time > 10] - 10, *sv2),
-                         color='grey', label='sv2: a1: %.2f, tau1: %.2f'
-                                             % (sv2[0], sv2[1]))
-
-                plt.legend(loc='lower right')
-                plt.title('%s, %s, %s, loop_%s' % (id, comment, key, idx))
-                plt.show()
-
-                # plt.savefig('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/jar_plots/%s/'
-                #             '%s, %s, %s, loop_%s.png' % (dataset, k_str, id, comment, key, idx))
-                plt.close()
-
-            print('mean over taus:', np.mean(taus))
+            print('mean over taus:', round(np.mean(taus), 2))
 
             print('-------------------------------------')
             os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
-            data = [id, comment, k_str, np.mean(taus), np.mean(responses)]
+            data = [id, comment, k_str, round(np.mean(taus), 2), round(np.std(taus), 2),
+                    round(np.mean(responses), 2), round(np.std(responses), 2)]
 
             savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/%s' % (dataset[-17:], k_str)
 

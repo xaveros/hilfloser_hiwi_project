@@ -32,7 +32,9 @@ def main():
     datasets = data_finder(datafolder)
 
     df = pd.DataFrame(columns=['id', 'daytime', 'deltaf', 'fakefish', 'generate_chirps', 'time_constant',
-                               'deltaf_response', 'number_chirps', 'number_bigchirps', 'response_ratio'])
+                               'time_constant_std', 'deltaf_response', 'deltaf_response_std',
+                               'number_chirps', 'number_chirps_std', 'number_bigchirps', 'number_bigchirps_std',
+                               'response_ratio', 'dataset'])
 
     for dataset in datasets:
         dataset = dataset[-17:-4]
@@ -61,18 +63,21 @@ def main():
                 fakefish = data[2].split(',')[1]
                 generate_chirps = data[2].split(',')[2][:-1]
                 time_constant = data[3]
-                deltaf_response = data[4]
+                time_constant_std = data[4]
+                deltaf_response = data[5]
+                deltaf_response_std = data[6]
 
-                row = {'id': id, 'daytime': daytime, 'dataset': dataset, 'deltaf': deltaf, 'fakefish': fakefish,
+                row = {'id': id, 'daytime': daytime, 'deltaf': deltaf, 'fakefish': fakefish,
                        'generate_chirps': generate_chirps, 'time_constant': time_constant,
-                       'deltaf_response': deltaf_response}
+                       'time_constant_std': time_constant_std, 'deltaf_response': deltaf_response,
+                       'deltaf_response_std': deltaf_response_std, 'dataset': dataset}
                 for k in df.keys():
                     if k not in row.keys():
                         row[k] = None
                 df = df.append(row, ignore_index=True)
                 os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
-            if key[2] is True:
+            elif key[2] is True:
                 print('echo')
                 k_str = str(key).replace(' ', '')
                 print(k_str)
@@ -86,17 +91,24 @@ def main():
                 deltaf = data[2].split(',')[0][1:]
                 fakefish = data[2].split(',')[1]
                 generate_chirps = data[2].split(',')[2][:-1]
-                response_ratio = data[3]
+                number_chirps = data[3]
+                number_chirps_std = data[4]
+                number_bigchirps = data[5]
+                number_bigchirps_std = data[6]
+                response_ratio = data[7]
 
-                row = {'id': id, 'daytime': daytime, 'dataset': dataset, 'deltaf': deltaf, 'fakefish': fakefish,
-                       'generate_chirps': generate_chirps, 'response_ratio': response_ratio}
+                row = {'id': id, 'daytime': daytime, 'deltaf': deltaf, 'fakefish': fakefish,
+                       'generate_chirps': generate_chirps, 'number_chirps': number_chirps,
+                       'number_chirps_std': number_chirps_std, 'number_bigchirps': number_bigchirps,
+                       'number_bigchirps_std': number_bigchirps_std, 'response_ratio': response_ratio,
+                       'dataset': dataset}
                 for k in df.keys():
                     if k not in row.keys():
                         row[k] = None
                 df = df.append(row, ignore_index=True)
                 os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 
-            if key[2] is False and key[0] != 5 and key[0] != -5:
+            else:
                 print('chirp')
                 k_str = str(key).replace(' ', '')
                 print(k_str)
@@ -112,11 +124,14 @@ def main():
                 fakefish = data[2].split(',')[1]
                 generate_chirps = data[2].split(',')[2][:-1]
                 number_chirps = data[3]
-                number_bigchirps = data[4]
+                number_chirps_std = data[4]
+                number_bigchirps = data[5]
+                number_bigchirps_std = data[6]
 
-                row = {'id': id, 'daytime': daytime, 'dataset': dataset, 'deltaf': deltaf, 'fakefish': fakefish,
+                row = {'id': id, 'daytime': daytime, 'deltaf': deltaf, 'fakefish': fakefish,
                        'generate_chirps': generate_chirps, 'number_chirps': number_chirps,
-                       'number_bigchirps': number_bigchirps}
+                       'number_chirps_std': number_chirps_std, 'number_bigchirps': number_bigchirps,
+                       'number_bigchirps_std': number_bigchirps_std, 'dataset': dataset}
                 for k in df.keys():
                     if k not in row.keys():
                         row[k] = None

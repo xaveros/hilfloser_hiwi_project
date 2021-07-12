@@ -79,9 +79,10 @@ def main():
             loops_raw_eod = np.load('%s_loops_raw_eod.npy' % load_key, allow_pickle=True)
             loops_valid_eod = np.load('%s_loops_valid_eod.npy' % load_key, allow_pickle=True)
 
-            chirp_numbers = []
-            chirp_small_height = []
-            chirp_big_height = []
+            chirps_numbers = []
+            chirps_big_numbers = []
+            chirps_small_height = []
+            chirps_big_height = []
             for idx, freq in enumerate(loops_frequency):
                 print('loop number:', idx)
 
@@ -134,6 +135,11 @@ def main():
                 print('chirp number:', chirp_number)
                 print('chirp times:', chirp_times)
 
+                chirps_numbers.append(chirp_number)
+                chirps_big_numbers.append(len(big_chirps))
+                chirps_big_height.append(big_chirps)
+                chirps_small_height.append(small_chirps)
+
                 # fig, ax = plt.subplots(figsize=(11.6, 8.2))
                 # # plot raw data
                 # ax.plot(time, eod, color='C0')
@@ -161,11 +167,9 @@ def main():
                 #             '%s, %s, %s, loop_%s.png' % (dataset, k_str, id, comment, key, idx))
                 # plt.close()
                 #
-                chirp_numbers.append(chirp_number)
-                chirp_big_height.append(big_chirps)
-                chirp_small_height.append(small_chirps)
 
-            data = [id, comment, k_str, np.mean(chirp_numbers), np.mean(len(big_chirps))]
+            data = [id, comment, k_str, np.mean(chirps_numbers), np.std(chirps_numbers), np.mean(chirps_big_numbers),
+                    np.std(chirps_big_numbers)]
 
             print('-------------------------------------')
 

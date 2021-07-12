@@ -80,6 +80,9 @@ def main():
             loops_valid_eod = np.load('%s_loops_valid_eod.npy' % load_key, allow_pickle=True)
 
             echo_chirps_times = []
+            chirps_numbers = []
+            chirps_big_numbers = []
+
             for idx, freq in enumerate(loops_frequency):
                 print('loop number:', idx)
 
@@ -133,6 +136,9 @@ def main():
                 # for chirps in positive direction, for big and small chirps
                 small_chirps, small_chirps_times, big_chirps, big_chirps_times = \
                     chirp_height_time(chirps_times, valid_time, valid_freq, big_small_chirp_threshold)
+
+                chirps_numbers.append(chirps_number)
+                chirps_big_numbers.append(len(big_chirps))
 
                 # if chirp_number > 0:
                 print('chirp number:', chirps_number)
@@ -212,7 +218,8 @@ def main():
 
             print('-------------------------------------')
 
-            data = [id, comment, k_str, response_ratio]
+            data = [id, comment, k_str, np.mean(chirps_numbers), np.std(chirps_numbers), np.mean(chirps_big_numbers),
+                    np.std(chirps_big_numbers), round(response_ratio, 2)]
 
             os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 

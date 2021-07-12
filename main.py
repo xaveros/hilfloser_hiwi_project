@@ -94,6 +94,10 @@ def load_comment(dataset):
         for c in content:
             if '#' and 'Comment' in c:
                 i = c.strip().split(':')[-1][1:]
+                if i == 'day':
+                    i = 'light'
+                if i == 'night':
+                    i == 'night'
                 comments.append(i)
     return comments
 
