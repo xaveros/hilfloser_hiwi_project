@@ -218,8 +218,9 @@ def main():
 
             print('-------------------------------------')
 
-            data = [id, comment, k_str, np.mean(chirps_numbers), np.std(chirps_numbers), np.mean(chirps_big_numbers),
-                    np.std(chirps_big_numbers), round(response_ratio, 2)]
+            data = [id, comment, k_str, round(np.mean(chirps_numbers), 2), round(np.std(chirps_numbers), 2),
+                    round(np.mean(chirps_big_numbers), 2), round(np.std(chirps_big_numbers), 2),
+                    round(response_ratio, 2)]
 
             os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset)
 

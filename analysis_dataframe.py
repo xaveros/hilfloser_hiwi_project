@@ -142,8 +142,9 @@ def main():
                     (-150.0, 0.0, False),
                     (150.0, 0.0, False), (-150.0, 750.0, False), (150.0, 750.0, False), (-50.0, 0.0, True),
                     (50.0, 0.0, True)]
-
-    df = df.sort_values(['id', 'daytime'], ignore_index=True)
+    os.chdir('/home/localadmin/PycharmProjects/hilfloser_hiwi_project')
+    df = df.sort_values(['deltaf', 'fakefish', 'generate_chirps', 'id', 'daytime'], ignore_index=True)
+    df.to_csv('analysis_dataframe.csv', index=False)
     print(df.to_string())
     embed()
     quit()

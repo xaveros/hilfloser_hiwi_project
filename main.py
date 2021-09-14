@@ -1,9 +1,18 @@
-# JAR
-    # load data
-    # norm data
-    # mean over traces
-    # filter
-    # fit --> time constant
+'''
+
+datastructure:
+
+- main
+    - jar: analysis - jar_analysis
+    - chirps: analysis - chirps_analysis
+    - echo response: analysis - chirps_analysis
+- jar_analysis2
+- chirps_analysis2
+- echo_analysis2
+
+- analysis_dataframe
+
+'''
 
 import nixio as nix
 import glob

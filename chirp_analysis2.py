@@ -168,8 +168,8 @@ def main():
                 # plt.close()
                 #
 
-            data = [id, comment, k_str, np.mean(chirps_numbers), np.std(chirps_numbers), np.mean(chirps_big_numbers),
-                    np.std(chirps_big_numbers)]
+            data = [id, comment, k_str, round(np.mean(chirps_numbers), 2), round(np.std(chirps_numbers), 2),
+                    round(np.mean(chirps_big_numbers), 2), round(np.std(chirps_big_numbers), 2)]
 
             print('-------------------------------------')
 
@@ -177,6 +177,7 @@ def main():
             savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/%s' % (dataset[-17:], k_str)
 
             np.save(savepath + '/%s_data.npy' % k_str, data)
+            print(data)
     embed()
     quit()
 
