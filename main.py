@@ -6,6 +6,7 @@ datastructure:
     - jar: analysis - jar_analysis
     - chirps: analysis - chirps_analysis
     - echo response: analysis - chirps_analysis
+(detect_eod as utility)
 - jar_analysis2
 - chirps_analysis2
 - echo_analysis2
@@ -106,14 +107,14 @@ def load_comment(dataset):
                 if i == 'day':
                     i = 'light'
                 if i == 'night':
-                    i == 'night'
+                    i == 'dark'
                 comments.append(i)
     return comments
 
 
 def main():
     # SAVE OR NOT SAVE?
-    datafolder = '/home/localadmin/data/electricbehaviour/recordings'
+    datafolder = '/home/localadmin/data/electricbehaviour/data_extension'
     datasets = data_finder(datafolder)
     # embed()
     # quit()
@@ -121,7 +122,8 @@ def main():
         '''loaded:
         03-11-ab, 03-15-aa, 03-15-ab, 03-15-ac, 03-15-ad, 03-15-ae, 03-15-af, 03-16-aa, 03-16-ab, 03-16-ac, 03-16-ad, 
         03-16-ae, 03-16-af, 03-16-ag, 03-16-ah, 06-02-aa, 06-02-ab, 06-02-ac '''
-        if idx == 14:   # new_recordings: idx 15-17
+        '''data_extension loaded: 08-25-ab, 09-14-aa'''
+        if idx == 1:    # new_recordings: idx 15-17
             id = load_id(dataset)
             day_time = load_comment(dataset)
             print(dataset)

@@ -19,7 +19,7 @@ from main import load_id
 from main import load_comment
 
 def main():
-    datafolder = '/home/localadmin/data/electricbehaviour/recordings'
+    datafolder = '/home/localadmin/data/electricbehaviour/data_extension'
     datasets = data_finder(datafolder)
     jar_keys = [(5.0, 0.0, False), (-5.0, 0.0, False)]
 
@@ -75,7 +75,14 @@ def main():
                 time = loops_raw_time[idx]
                 eod_times = loops_eod_time[idx]
                 valid_eod = loops_valid_eod[idx]
+                print(len(valid_eod))
+                print(len(freq))
+                print(len(eod_times))
 
+                if len(valid_eod) > len(eod_times):
+                    valid_eod = valid_eod[:-1]
+                if len(freq) != len(valid_eod):
+                    freq = freq[:-1]
                 # fit for single loop
                 valid_time = eod_times[valid_eod == 1]
                 valid_freq = freq[valid_eod == 1]

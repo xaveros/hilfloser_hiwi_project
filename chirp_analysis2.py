@@ -45,11 +45,10 @@ def chirp_height_time(chirp_times, time, freq, big_small_chirp_threshold):
 
 
 def main():
-    datafolder = '/home/localadmin/data/electricbehaviour/recordings'
+    datafolder = '/home/localadmin/data/electricbehaviour/data_extension'
     datasets = data_finder(datafolder)
     chirp_keys = [(150.0, 750.0, False), (-150.0, 750.0, False), (150.0, 0.0, False), (-150.0, 0.0, False),
                   (50.0, 0.0, False), (-50.0, 0.0, False)]
-
 
     for dataset in datasets:
         dataset = dataset[-17:-4]
@@ -85,6 +84,11 @@ def main():
             chirps_big_height = []
             for idx, freq in enumerate(loops_frequency):
                 print('loop number:', idx)
+                if dataset == '2021-08-24-ab':
+                    if key == (150.0, 750.0, False):
+                        if idx == 4:
+                            print('out')
+                            continue
 
                 eod = loops_raw_eod[idx]
                 eod_times = loops_eod_time[idx]
@@ -101,7 +105,9 @@ def main():
                 valid_time = eod_times[valid_eod == 1]
                 valid_true_freq = freq[valid_eod == 1]
                 valid_freq = valid_true_freq - np.mean(valid_true_freq)
-
+                if len(valid_freq) < 1000:
+                    embed()
+                    quit()
                 # smoothing filter over frequency
                 valid_freq = filter_data(valid_freq, n=3)
 

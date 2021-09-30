@@ -280,134 +280,137 @@ def chirp_analysis(dataset, dataset_dict, keys, id):
     dt = eod_array.dimensions[0].sampling_interval
 
     for k in keys:
-        print(k)
         # stripped key for file names
-        k_str = str(k).replace(' ', '')
+        if k == (150.0, 750.0, False):
 
-        loops_frequency = []
-        loops_time = []
-        loops_raw_eod = []
-        loops_raw_time = []
-        loops_valid_eod = []
+            print(k)
+            k_str = str(k).replace(' ', '')
 
-        start = []
-        stop = []
-        timespan = []
+            loops_frequency = []
+            loops_time = []
+            loops_raw_eod = []
+            loops_raw_time = []
+            loops_valid_eod = []
 
-        for mt_id, position in dataset_dict[k]:         # schau ma hier: weird mt_ids und positions
-            # retrieve eod trace
-            mt = b.multi_tags[mt_id]
-            # eod = mt.references("EOD-1")
+            start = []
+            stop = []
+            timespan = []
 
-            # retrieve pre_data (before stimulus onset to get reference)
-            di = int(10.0 / dt)
-            i0 = int(mt.positions[position][0] / dt)
-            i1 = i0 + int(mt.extents[position][0] / dt)
-            pre_data = eod_array[i0 - di:i0]
+            for mt_id, position in dataset_dict[k]:         # schau ma hier: weird mt_ids und positions
+                # retrieve eod trace
+                mt = b.multi_tags[mt_id]
+                # eod = mt.references("EOD-1")
 
-            # 'glue' eod and pre_data together
-            trace = np.hstack((pre_data, eod_array[i0:i1]))
+                # retrieve pre_data (before stimulus onset to get reference)
+                di = int(10.0 / dt)
+                i0 = int(mt.positions[position][0] / dt)
+                i1 = i0 + int(mt.extents[position][0] / dt)
+                pre_data = eod_array[i0 - di:i0]
+
+                # 'glue' eod and pre_data together
+                trace = np.hstack((pre_data, eod_array[i0:i1]))
 
 
-            trace = trace - np.median(trace)
+                trace = trace - np.median(trace)
 
-            # time for the length of whole data, including start/stop/timespan
-            time = np.arange(0, len(trace), 1, dtype=np.double) * dt
+                # time for the length of whole data, including start/stop/timespan
+                time = np.arange(0, len(trace), 1, dtype=np.double) * dt
 
-            start.append(time[0])
-            stop.append(time[-1])
-            timespan.append((np.arange(0, len(trace)) * dt)[-1])
+                start.append(time[0])
+                stop.append(time[-1])
+                timespan.append((np.arange(0, len(trace)) * dt)[-1])
 
-            'smoothing data by small filter'
-            print('smoothing..')
-            kernel_core = 5
-            kernel = np.ones(kernel_core) / kernel_core
+                'smoothing data by small filter'
+                print('smoothing..')
+                kernel_core = 5
+                kernel = np.ones(kernel_core) / kernel_core
 
-            # create head and tail filled with mean
-            head_mean = np.mean(trace[:kernel_core])
-            head = np.full((1, kernel_core), head_mean)
-            head = head[0]
+                # create head and tail filled with mean
+                head_mean = np.mean(trace[:kernel_core])
+                head = np.full((1, kernel_core), head_mean)
+                head = head[0]
 
-            tail_mean = np.mean(trace[kernel_core:])
-            tail = np.full((1, kernel_core), tail_mean)
-            tail = tail[0]
+                tail_mean = np.mean(trace[kernel_core:])
+                tail = np.full((1, kernel_core), tail_mean)
+                tail = tail[0]
 
-            # prolong trace with head and tail
-            prolonged_trace = np.hstack((head, trace, tail))
+                # prolong trace with head and tail
+                prolonged_trace = np.hstack((head, trace, tail))
 
-            # use new freq with mode same, boundarys effects are outside of wanted time now
-            prolonged_convolve_trace = np.convolve(kernel, prolonged_trace, mode='same')
+                # use new freq with mode same, boundarys effects are outside of wanted time now
+                prolonged_convolve_trace = np.convolve(kernel, prolonged_trace, mode='same')
 
-            # remove head and tail and therefore boundaries
-            prolonged_convolve_trace = prolonged_convolve_trace[kernel_core:]
-            prolonged_convolve_trace = prolonged_convolve_trace[:-kernel_core]
+                # remove head and tail and therefore boundaries
+                prolonged_convolve_trace = prolonged_convolve_trace[kernel_core:]
+                prolonged_convolve_trace = prolonged_convolve_trace[:-kernel_core]
 
-            trace = prolonged_convolve_trace - np.mean(prolonged_convolve_trace)
+                trace = prolonged_convolve_trace - np.mean(prolonged_convolve_trace)
 
-            # duration (extents is only for eod data), onset und offset of stimulus
-            offset = (np.arange(0, len(trace)) * dt)[-1]
-            onset = (np.arange(0, len(pre_data) * dt))[-1]
+                # duration (extents is only for eod data), onset und offset of stimulus
+                offset = (np.arange(0, len(trace)) * dt)[-1]
+                onset = (np.arange(0, len(pre_data) * dt))[-1]
 
-            frequency, eod_times = detect_eod_frequency(time, trace)
-            eodf = np.median(frequency)
+                frequency, eod_times = detect_eod_frequency(time, trace)
+                eodf = np.median(frequency)
 
-            # times, frequency = detect_eod_frequency_spectrum(time, trace, nfft=2**15, overlap=0.999)
+                # times, frequency = detect_eod_frequency_spectrum(time, trace, nfft=2**15, overlap=0.999)
 
-            print('validating..')
-            period = 1 / eodf
-            segment = 1.25 * period
+                print('validating..')
+                period = 1 / eodf
+                segment = 1.25 * period
 
-            # filter eod_times bigger than the last eod_time
-            for idx, e in enumerate(eod_times):
-                if e > eod_times[-1]:
-                    eod_times[idx] = eod_times[idx + 1] - period
+                # filter eod_times bigger than the last eod_time
+                for idx, e in enumerate(eod_times):
+                    if e > eod_times[-1]:
+                        eod_times[idx] = eod_times[idx + 1] - period
 
-            # make window for every eod_time, get max out of it
-            eod_max = []
-            for et in eod_times:
-                start_segment = et - segment/2
-                stop_segment = et + segment/2
-                window_eod = trace[(time >= start_segment) & (time < stop_segment)]
-                if len(window_eod) == 0:
-                    print('window_eod empty')
-                    embed()
-                max_eod = np.max(window_eod)
-                eod_max.append(max_eod)
+                # make window for every eod_time, get max out of it
+                eod_max = []
+                for et in eod_times:
+                    start_segment = et - segment/2
+                    stop_segment = et + segment/2
+                    window_eod = trace[(time >= start_segment) & (time < stop_segment)]
+                    if len(window_eod) == 0:
+                        print('window_eod empty')
+                        embed()
+                    max_eod = np.max(window_eod)
+                    eod_max.append(max_eod)
 
-            # valid eod = eod values bigger than the half of the maximum eod (to filter out fish turns)
-            valid_eod = eod_max > (0.6 * np.max(eod_max))
-            valid_eod = valid_eod[:-1]
+                # valid eod = eod values bigger than the half of the maximum eod (to filter out fish turns)
 
-            # valid eod contains either True (bigger than 0.5*max) or False (smaller than 0.5*max)
-            # values smaller (False) will be but as NaN, next step in chirp_analysis2
-            frequency[valid_eod < 1.0] = np.nan
+                valid_eod = eod_max > (0.6 * np.max(eod_max))
+                valid_eod = valid_eod[:-1]
 
-            eod_times = eod_times[:-1]
+                # valid eod contains either True (bigger than 0.5*max) or False (smaller than 0.5*max)
+                # values smaller (False) will be but as NaN, next step in chirp_analysis2
+                frequency[valid_eod < 1.0] = np.nan
 
-            # append the whole data to lists
-            loops_valid_eod.append(valid_eod)
-            loops_time.append(eod_times)
-            loops_frequency.append(frequency)
-            loops_raw_eod.append(trace)
-            loops_raw_time.append(time)
+                eod_times = eod_times[:-1]
 
-            # plt.plot(time, trace)
-            # plt.scatter(eod_times, valid_eod, color='orange')
-            # plt.show()
-
-        # save data to npy files at the following places
-        savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/%s' % (dataset[-17:-4], k_str)
-        key_savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset[-17:-4]
-
-        np.save(key_savepath + '/%s_key.npy' % k_str, k_str)
-        np.save(savepath + '/%s_loops_frequency.npy' % k_str, loops_frequency)
-        np.save(savepath + '/%s_loops_time.npy' % k_str, loops_time)
-        np.save(savepath + '/%s_loops_raw_eod.npy' % k_str, loops_raw_eod)
-        np.save(savepath + '/%s_loops_raw_time.npy' % k_str, loops_raw_time)
-        np.save(savepath + '/%s_loops_valid_eod.npy' % k_str, loops_valid_eod)
-        np.save(savepath + '/%s_stop.npy' % k_str, stop)
-        np.save(savepath + '/%s_start.npy' % k_str, start)
-        np.save(savepath + '/%s_timespan.npy' % k_str, timespan)
+                # append the whole data to lists
+                '''loops_valid_eod.append(valid_eod)
+                loops_time.append(eod_times)
+                loops_frequency.append(frequency)
+                loops_raw_eod.append(trace)
+                loops_raw_time.append(time)
+    
+                # plt.plot(time, trace)
+                # plt.scatter(eod_times, valid_eod, color='orange')
+                # plt.show()
+    
+            # save data to npy files at the following places
+            savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/%s' % (dataset[-17:-4], k_str)
+            key_savepath = '/home/localadmin/PycharmProjects/hilfloser_hiwi_project/saves/%s/keys' % dataset[-17:-4]
+    
+            np.save(key_savepath + '/%s_key.npy' % k_str, k_str)
+            np.save(savepath + '/%s_loops_frequency.npy' % k_str, loops_frequency)
+            np.save(savepath + '/%s_loops_time.npy' % k_str, loops_time)
+            np.save(savepath + '/%s_loops_raw_eod.npy' % k_str, loops_raw_eod)
+            np.save(savepath + '/%s_loops_raw_time.npy' % k_str, loops_raw_time)
+            np.save(savepath + '/%s_loops_valid_eod.npy' % k_str, loops_valid_eod)
+            np.save(savepath + '/%s_stop.npy' % k_str, stop)
+            np.save(savepath + '/%s_start.npy' % k_str, start)
+            np.save(savepath + '/%s_timespan.npy' % k_str, timespan)'''
 
     pass
 
